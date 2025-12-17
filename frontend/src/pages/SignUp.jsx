@@ -8,6 +8,10 @@ import axios from "axios";
 import { serverUrl } from "../App";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../Redux/userSlice";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../utils/firebase.js";
 
 const SignUp = () => {
   const [show, setShow] = useState(false);
@@ -18,6 +22,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState("student");
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch()
 
   const handleSignup = async () => {
     setLoading(true);
@@ -28,15 +33,34 @@ const SignUp = () => {
         { withCredentials: true }
       );
       console.log(result.data);
+      dispatch(setUserData(result.data))
       setLoading(false);
       navigate("/");
       toast.success("Signup Sucessfully");
     } catch (error) {
       console.log(error);
       setLoading(false);
-      toast.error(error.response.data.message);
+      toast.error(error.response.data.msg);
     }
   };
+
+  const googleSignIn = async() => {
+    try {
+      const response = await signInWithPopup(auth, provider);
+      let user = response.user;
+      let name = user.displayName;
+      let email = user.email;
+
+      const result = await axios.post(serverUrl + "/api/auth/googleauth", {name: name, email : email, role}, {withCredentials: true}  );
+      console.log(result.data);
+      dispatch(setUserData(result.data))
+      navigate("/");
+      toast.success("SignUp Sucessfully");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.msg);
+    }
+  }
 
   return (
     <div className="bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center">
@@ -134,7 +158,7 @@ const SignUp = () => {
             </div>
             <div className="w-[25%] h-[0.5px] bg-[#c4c4c4]"></div>
           </div>
-          <div className="w-[80%] h-[40px] border-1 border-[black] rounded-[5px] flex items-center justify-center">
+          <div className="w-[80%] h-[40px] border-1 border-[black] rounded-[5px] flex items-center justify-center cursor-pointer" onClick={googleSignIn}>
             <img src={google} className="w-[25px]" alt="" />
             <span className="text-[18px] text-gray-500">oogle</span>
           </div>

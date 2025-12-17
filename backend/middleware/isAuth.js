@@ -14,7 +14,8 @@ const isAuth = async (req, res, next) => {
       return res.status(400).json({ msg: "user don't have valid token" });
     }
 
-    req.userID = verifyToken.userID;
+    req.userId = verifyToken.userID;
+    
     next();
   } catch (error) {
     return res.status(500).json({ msg: `isAuth error ${error}` });

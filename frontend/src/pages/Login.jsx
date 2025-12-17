@@ -7,6 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { serverUrl } from "../App";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setUserData } from "../Redux/userSlice";
+import axios from "axios";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../utils/firebase";
 
 const Login = () => {
 
@@ -16,22 +21,44 @@ const Login = () => {
 
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
-
+  const dispatch = useDispatch()
 
   const handleLogin = async() => {
         setLoading(true)
         try {
             const result = await axios.post(serverUrl + "/api/auth/login", {email, password}, {withCredentials : true})
             console.log(result.data);
+            dispatch(setUserData(result.data))
             setLoading(false)
             toast.success('Login Sucessfully')
             navigate('/')
         } catch (error) {
             console.log(error);
             setLoading(false)
-            toast.error(error.response)
+            toast.error(error.response.data.msg)
         }
   }
+
+  
+    const googleLogIn = async() => {
+      try {
+        const response = await signInWithPopup(auth, provider);
+        let user = response.user;
+        let name = user.displayName;
+        let email = user.email;
+        let role = "";
+  
+        const result = await axios.post(serverUrl + "/api/auth/googleauth", {name: name, email : email, role}, {withCredentials: true}  );
+        console.log(result.data);
+        dispatch(setUserData(result.data))
+        navigate("/");
+        toast.success("Login Sucessfully");
+      } catch (error) {
+        console.log(error);
+        toast.error(error.response.data.msg);
+      }
+    }
+  
 
   return (
     <div className="bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center">
@@ -84,7 +111,7 @@ const Login = () => {
           <button className="w-[80%] h-[40px] bg-black text-white cursor-pointer flex items-center justify-center rounded-[5px]" onClick={handleLogin} disabled={loading}>
            {loading? <ClipLoader size={30} color="white" /> : "Login"}
           </button>
-          <span className="text-[13px] cursor-pointer text-[#585757]">
+          <span className="text-[13px] cursor-pointer text-[#585757]" onClick={()=>navigate('/forget')}>
             Forget your Password ?
           </span>
           <div className="w-[80%] flex items-center gap-2">
@@ -94,7 +121,7 @@ const Login = () => {
             </div>
             <div className="w-[25%] h-[0.5px] bg-[#c4c4c4]"></div>
           </div>
-          <div className="w-[80%] h-[40px] border-1 border-[black] rounded-[5px] flex items-center justify-center">
+          <div className="w-[80%] h-[40px] border-1 border-[black] rounded-[5px] flex items-center justify-center cursor-pointer" onClick={googleLogIn}>
             <img src={google} className="w-[25px]" alt="" />
             <span className="text-[18px] text-gray-500">oogle</span>
           </div>
