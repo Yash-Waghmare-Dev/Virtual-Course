@@ -55,7 +55,7 @@ const AllCourse = () => {
 
 
       <form action="" className='space-y-4 text-sm bg-gray-600 border-white text-[white] border p-[20px] rounded-2xl' onSubmit={(e)=>e.preventDefault()}>
-        <button className='px-[10px] py-[10px] bg-black text-white rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer'>Search with AI <img src={ai} className='w-[30px] h-[30px] rounded-full' alt="" /></button>
+        <button className='px-[10px] py-[10px] bg-black text-white rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer' onClick={()=>navigate('/search')}>Search with AI <img src={ai} className='w-[30px] h-[30px] rounded-full' alt="" /></button>
         <label htmlFor="" className='flex items-center gap-3 cursor-pointer hover:text-gray-200 transition'>
           <input type="checkbox" className='accent-black w-4 h-4 rounded-md' value={'App Development'} onChange={toggleCategory}/>App Development    
         </label>
@@ -92,7 +92,7 @@ const AllCourse = () => {
       <main className='w-full transition-all duration-300 py-[130px] md:pl-[300px] flex items-start justify-center md:justify-start flex-wrap gap-6 px-[10px]'>
           {
               filterCourses?.map((course, index) => (
-                <Card key={index}  thumbnail={course.thumbnail} title={course.title} category={course.category} price={course.price} id={course._id}/>
+                <Card key={index}  thumbnail={course.thumbnail} title={course.title} category={course.category} price={course.price} id={course._id} review={course.reviews}/>
               ))
           }
       </main>

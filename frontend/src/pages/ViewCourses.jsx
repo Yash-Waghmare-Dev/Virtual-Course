@@ -11,6 +11,7 @@ import { serverUrl } from "../App";
 import axios from "axios";
 import Card from "../Components/Card";
 import { toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
 
 const ViewCourses = () => {
   const navigate = useNavigate();
@@ -24,6 +25,9 @@ const ViewCourses = () => {
   const [creatorData, setCreatorData] = useState(null);
   const [creatorCourses, setCreatorCourses] = useState(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const fetchCourseData = useCallback(() => {
     if (!courseData || !courseId) {
@@ -153,6 +157,51 @@ const ViewCourses = () => {
     }
   };
 
+  const handleReview = async () => {
+    // Validate inputs
+    if (!rating || rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    if (!comment || !comment.trim()) {
+      toast.error("Please write a comment");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      console.log("Submitting review with:", { courseId, rating, comment });
+      const result = await axios.post(
+        serverUrl + "/api/review/createreview",
+        {
+          courseId,
+          rating: parseInt(rating),
+          comment: comment.trim(),
+        },
+        { withCredentials: true }
+      );
+      console.log("Review response:", result.data);
+      setLoading(false);
+      setRating(0);
+      setComment("");
+      toast.success(result.data.msg || "Review Submitted Successfully");
+    } catch (error) {
+      console.log("Error in submitting review:", error);
+      console.log("Error response:", error.response?.data);
+      setLoading(false);
+      toast.error(error.response?.data?.msg || "Failed to submit review");
+    }
+  };
+
+  const calculateAverageRating = (review) => {
+    if(!review || review.length === 0) return 0;
+    const total = review.reduce((sum, r) => sum + r.rating, 0);
+    return (total / review.length).toFixed(1);
+  }
+
+  const avgRating = calculateAverageRating(selectedCourse?.reviews);
+
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto bg-white shadow-md rounded-xl p-6 space-y-6 relative">
@@ -187,7 +236,7 @@ const ViewCourses = () => {
             <div className="flex items-start flex-col justify-between">
               <div className="text-yellow-500 font-medium flex gap-2">
                 <span className="flex justify-start items-center gap-1">
-                  <FaStar /> 5
+                  <FaStar /> {avgRating}
                 </span>
                 <span className="text-gray-400">(1,200 Reviews)</span>
               </div>
@@ -210,7 +259,10 @@ const ViewCourses = () => {
                   Enroll Now
                 </button>
               ) : (
-                <button className="bg-green-100 text-green-500 px-6 py-2 rounded hover:bg-gray-700 mt-3 cursor-pointer" onClick={()=>navigate(`/viewlecture/${courseId}`)}>
+                <button
+                  className="bg-green-100 text-green-500 px-6 py-2 rounded hover:bg-gray-700 mt-3 cursor-pointer"
+                  onClick={() => navigate(`/viewlecture/${courseId}`)}
+                >
                   Watch Now
                 </button>
               )}
@@ -294,16 +346,34 @@ const ViewCourses = () => {
           <div className="mb-4">
             <div className="flex gap-1 mb-2">
               {[1, 2, 3, 4, 5].map((star) => (
-                <FaStar key={star} className="fill-gray-300" />
+                <FaStar
+                  key={star}
+                  className={
+                    star <= rating
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-300"
+                  }
+                  onClick={() => setRating(star)}
+                />
               ))}
             </div>
             <textarea
               className="w-full border border-gray-300 rounded-lg p-2"
               placeholder="Write your review here..."
               rows={3}
+              onChange={(e) => setComment(e.target.value)}
+              value={comment}
             />
-            <button className="bg-black text-white mt-3 px-4 py-2 rounded hover:bg-gray-800">
-              Submit Review
+            <button
+              className="bg-black text-white mt-3 px-4 py-2 rounded hover:bg-gray-800"
+              disabled={loading}
+              onClick={handleReview}
+            >
+              {loading ? (
+                <ClipLoader size={30} color="white" />
+              ) : (
+                "Submit Review"
+              )}
             </button>
           </div>
         </div>

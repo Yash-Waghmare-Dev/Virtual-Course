@@ -2,6 +2,7 @@ import express from 'express';
 import { createCourse, createLecture, editCourse, editLecture, getCourseById, getCreatorById, getCourseLecture, getCreatorCourses, getPublishedCourses, removeCourse, removeLecture } from '../controller/courseController.js';
 import isAuth from '../middleware/isAuth.js';
 import upload from '../middleware/multer.js';
+import { searchWithAi } from '../controller/searchController.js';
 
 
 const courseRouter = express.Router();
@@ -32,5 +33,8 @@ courseRouter.delete('/removelecture/:lectureId', isAuth, removeLecture)
 courseRouter.post('/creator', isAuth, getCreatorById)
 
 
+// For Search 
+
+courseRouter.post('/search', searchWithAi);
 
 export default courseRouter;

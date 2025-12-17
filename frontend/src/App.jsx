@@ -22,6 +22,8 @@ import ViewCourses from './pages/ViewCourses.jsx'
 import ScrollToTop from './Components/ScrollToTop.jsx'
 import ViewLecture from './pages/ViewLecture.jsx'
 import MyEnrollCourse from './pages/MyEnrollCourse.jsx'
+import useGetAllReviews from './customHooks/useGetAllReviews.jsx'
+import SearchWithAi from './pages/SearchWithAi.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -29,6 +31,7 @@ function App() {
       useGetCurrentUser();
       useGetCreatorCourse();
       useGetPublishedCourse();
+      useGetAllReviews();
       
       const { userData } = useSelector(state=>state.user);
   return (
@@ -52,6 +55,7 @@ function App() {
         <Route path='/viewcourse/:courseId' element={userData ? <ViewCourses/> : <Navigate to={'/signup'}/>}/>
         <Route path='/viewlecture/:courseId' element={userData ? <ViewLecture/> : <Navigate to={'/signup'}/>}/>
         <Route path='/mycourses' element={userData ? <MyEnrollCourse/> : <Navigate to={'/signup'}/>}/>
+        <Route path='/search' element={userData ? <SearchWithAi/> : <Navigate to={'/signup'}/>}/>
         
       </Routes>
     </>

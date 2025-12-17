@@ -12,6 +12,7 @@ import { setUserData } from "../Redux/userSlice";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../utils/firebase";
+import { FaArrowLeft } from "react-icons/fa6";
 
 const Login = () => {
 
@@ -62,7 +63,8 @@ const Login = () => {
 
   return (
     <div className="bg-[#dddbdb] w-[100vw] h-[100vh] flex items-center justify-center">
-      <form className="w-[90%] md:w-200 h-150 bg-[white] shadow-xl rounded-2xl flex" onSubmit={(e) => e.preventDefault()}>
+      <form className="w-[90%] md:w-200 h-150 bg-[white] shadow-xl rounded-2xl flex relative" onSubmit={(e) => e.preventDefault()}>
+              <FaArrowLeft className='absolute top-[3%] md:top-[19%] left-[10%] w-[22px] h-[22px] cursor-pointer' onClick={()=>navigate('/')}/>
         {/* left div  */}
         <div className="md:w-[50%] w-[100%] flex flex-col items-center justify-center gap-3">
           <div>
